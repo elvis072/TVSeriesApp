@@ -1,5 +1,5 @@
 package com.example.tvseriesapp.data.remote.dto
 
-data class SelfDto(
+data class PreviousEpisodeDto(
     val href: String?
 )

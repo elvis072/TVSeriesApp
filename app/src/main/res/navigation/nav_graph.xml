@@ -9,5 +9,25 @@
         android:id="@+id/tvShowsFragment"
         android:name="com.example.tvseriesapp.ui.fragment.TvShowsFragment"
         android:label="@string/tv_shows_fragment_label"
-        tools:layout="@layout/fragment_tv_shows" />
+        tools:layout="@layout/fragment_tv_shows" >
+        <action
+            android:id="@+id/action_tvShowsFragment_to_tvShowDetailFragment"
+            app:destination="@id/tvShowDetailFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/tvShowDetailFragment"
+        android:name="com.example.tvseriesapp.ui.fragment.TvShowDetailFragment"
+        android:label="@string/tv_shows_detail_fragment_label"
+        tools:layout="@layout/fragment_tv_show_detail">
+        <action
+            android:id="@+id/action_tvShowDetailFragment_to_tvShowEpisodeDetailFragment"
+            app:destination="@id/tvShowEpisodeDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tvShowEpisodeDetailFragment"
+        android:name="com.example.tvseriesapp.ui.fragment.TvShowEpisodeDetailFragment"
+        android:label="@string/tv_shows_episode_detail_fragment_label" />
 </navigation>

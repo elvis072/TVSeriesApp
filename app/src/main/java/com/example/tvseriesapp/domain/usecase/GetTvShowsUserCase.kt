@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetTvShowsUserCase @Inject constructor(private val tvShowRepository: TvShowRepository) {
-    operator fun invoke(): Flow<PagingData<TvShow>> = tvShowRepository.getShows()
+    operator fun invoke(query: String): Flow<PagingData<TvShow>> = tvShowRepository.getShows(query)
 }

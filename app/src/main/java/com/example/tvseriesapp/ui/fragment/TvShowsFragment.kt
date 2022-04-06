@@ -1,29 +1,45 @@
 package com.example.tvseriesapp.ui.fragment
 
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tvseriesapp.R
+import com.example.tvseriesapp.common.Constants
 import com.example.tvseriesapp.databinding.FragmentTvShowsBinding
 import com.example.tvseriesapp.ui.adapter.TvShowsAdapter
-import com.example.tvseriesapp.ui.adapter.diffutil.TvShowDiffCallback
 import com.example.tvseriesapp.ui.viewmodel.TvShowViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBinding::inflate) {
     private val viewModel by viewModels<TvShowViewModel>()
+    private lateinit var adapter: TvShowsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = TvShowsAdapter(TvShowDiffCallback)
+        adapter = TvShowsAdapter { id ->
+            findNavController().navigate(
+                R.id.action_tvShowsFragment_to_tvShowDetailFragment,
+                bundleOf(Constants.TV_SHOW_ID_KEY to id)
+            )
+        }
+
         binding.recycleView.adapter = adapter
         binding.recycleView.layoutManager = LinearLayoutManager(
             context,
@@ -31,10 +47,67 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
             false
         )
 
-        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            viewModel.tvShows.collectLatest {
-                adapter.submitData(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.getShows("")
+                        .collectLatest {
+                            adapter.submitData(it)
+                        }
+                }
+
+                launch {
+                    adapter.loadStateFlow.collectLatest { state ->
+                        binding.refresh.isRefreshing = false
+                        binding.progressCircular.isVisible = state.refresh is LoadState.Loading
+                    }
+                }
+
+                launch {
+                    binding.refresh.setOnRefreshListener {
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            viewModel.getShows("")
+                                .collectLatest {
+                                    adapter.submitData(it)
+                                }
+                        }
+                    }
+                }
             }
         }
+
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.top_navigation_menu, menu)
+
+        val search = menu.findItem(R.id.menu_search)
+        val searchView = (search?.actionView as SearchView).also {
+            it.queryHint = getString(R.string.search)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                it.tooltipText = getString(R.string.search)
+        }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(query: String): Boolean {
+                if (!isDetached && isVisible)
+                    viewLifecycleOwner.lifecycleScope?.launch {
+                        viewModel.getShows(query)
+                            .flowWithLifecycle(lifecycle)
+                            .collectLatest {
+                                adapter.submitData(it)
+                            }
+                    }
+                return true
+            }
+        })
+
+        super.onCreateOptionsMenu(menu, inflater)
     }
 }

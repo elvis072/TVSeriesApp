@@ -1,9 +1,9 @@
 package com.example.tvseriesapp.data.remote.dto
 
-
 import com.google.gson.annotations.SerializedName
 
 data class LinksDto(
-    val previousepisode: PreviousepisodeDto,
-    val self: SelfDto
+    @SerializedName("previousepisode")
+    val previousEpisode: PreviousEpisodeDto?,
+    val self: SelfDto?
 )

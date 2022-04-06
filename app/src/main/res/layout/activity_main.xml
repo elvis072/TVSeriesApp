@@ -22,11 +22,12 @@
         android:id="@+id/bottom_nav_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         style="@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/nav_host_fragment"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_navigation_men"/>
+        app:menu="@menu/bottom_navigation_menu"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
