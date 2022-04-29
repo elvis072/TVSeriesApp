@@ -3,7 +3,6 @@ package com.example.tvseriesapp.common
 import android.content.Context
 import android.content.res.Resources
 import android.util.TypedValue
-import androidx.annotation.NonNull
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.example.tvseriesapp.R
 

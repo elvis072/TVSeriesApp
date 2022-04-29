@@ -5,11 +5,11 @@ import androidx.recyclerview.widget.ListAdapter
 import com.example.tvseriesapp.domain.model.Episode
 import com.example.tvseriesapp.ui.adapter.viewholder.TvShowEpisodeViewHolder
 
-class TvShowEpisodesAdapter(private val itemCLickListener: (seasonId: Int, episodeId: Int) -> Unit)
+class TvShowEpisodesAdapter(private val itemClickListener: (seasonId: Int, episodeId: Int) -> Unit)
     : ListAdapter<Episode, TvShowEpisodeViewHolder>(Episode.DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TvShowEpisodeViewHolder {
-        return TvShowEpisodeViewHolder(parent, itemCLickListener)
+        return TvShowEpisodeViewHolder(parent, itemClickListener)
     }
 
     override fun onBindViewHolder(holder: TvShowEpisodeViewHolder, position: Int) {

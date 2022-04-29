@@ -2,7 +2,6 @@ package com.example.tvseriesapp.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
@@ -19,6 +18,7 @@ import com.example.tvseriesapp.common.Constants
 import com.example.tvseriesapp.common.ViewUtil
 import com.example.tvseriesapp.databinding.FragmentTvShowDetailBinding
 import com.example.tvseriesapp.ui.adapter.TvShowEpisodesAdapter
+import com.example.tvseriesapp.ui.adapter.itemdecoration.HeaderItemDecoration
 import com.example.tvseriesapp.ui.viewmodel.TvShowDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -72,11 +72,11 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
                     }
 
                     state.showDetail?.runtime?.let {
-                        binding.title.text = getString(R.string.tv_show_runtime, it)
+                        binding.runtime.text = getString(R.string.tv_show_runtime, it)
                     }
 
                     state.showDetail?.genres?.let {
-                        binding.title.text = it.joinToString("  ")
+                        binding.genres.text = it.joinToString("  ")
                     }
 
                     state.showDetail?.days?.joinToString()?.let {
@@ -119,6 +119,13 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
         binding.episodeList.apply {
             adapter = episodesAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+            // item decorators
+            addItemDecoration(HeaderItemDecoration { position ->
+                if (episodesAdapter.currentList.isEmpty() || position < 0 || position >= episodesAdapter.currentList.size)
+                    return@HeaderItemDecoration ""
+                getString(R.string.tv_show_season, episodesAdapter.currentList[position].season)
+            })
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
