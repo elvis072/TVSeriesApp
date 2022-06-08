@@ -4,8 +4,10 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.view.View
+import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tvseriesapp.R
+import com.example.tvseriesapp.common.ViewUtil.getAttribute
 import com.example.tvseriesapp.common.ViewUtil.toPx
 
 class HeaderItemDecoration(private val getHeader: (position: Int) -> String) : RecyclerView.ItemDecoration() {
@@ -22,14 +24,17 @@ class HeaderItemDecoration(private val getHeader: (position: Int) -> String) : R
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDraw(canvas, parent, state)
 
-        val childCount = parent.childCount
-        for (i in 0 until childCount) {
-            val child = parent.getChildAt(i)
-            val adapterPosition = parent.getChildAdapterPosition(child)
-            val header = getHeader(adapterPosition)
+        parent.context?.let {
+            paint.color = it.getAttribute(com.google.android.material.R.attr.colorSecondary)
+        }
 
+        parent.children.forEach { child ->
+            val adapterPosition = parent.getChildAdapterPosition(child)
+                .let { if (it == RecyclerView.NO_POSITION) return@forEach else it }
+
+            val header = getHeader(adapterPosition)
             if (!isHeader(header, adapterPosition))
-                continue
+                return@forEach
 
             val left = child.left + child.paddingStart
             val top = child.top
@@ -46,6 +51,8 @@ class HeaderItemDecoration(private val getHeader: (position: Int) -> String) : R
         super.getItemOffsets(outRect, view, parent, state)
 
         val adapterPosition = parent.getChildAdapterPosition(view)
+            .let { if (it == RecyclerView.NO_POSITION) return else it }
+
         if (!isHeader(getHeader(adapterPosition), adapterPosition))
             return
 

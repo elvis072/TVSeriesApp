@@ -1,15 +1,11 @@
 package com.example.tvseriesapp.ui.fragment
 
-import android.content.Context
-import android.os.Bundle
-import android.view.View
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil.load
 import com.example.tvseriesapp.R
 import com.example.tvseriesapp.common.ViewUtil
@@ -23,15 +19,13 @@ import kotlinx.coroutines.launch
 class TvShowEpisodeDetailFragment : BaseFragment<FragmentTvShowEpisodeDetailBinding>(FragmentTvShowEpisodeDetailBinding::inflate) {
     val viewModel by viewModels<TvShowEpisodeDetailViewModel>()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun setUp() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.state
                         .collectLatest { state ->
-                            binding.refresh.isRefreshing = false
+//                            binding.refresh.isRefreshing = false
                             binding.progressCircular.isVisible = state.isLoading
 
                             state.episode?.image?.let {
@@ -70,11 +64,11 @@ class TvShowEpisodeDetailFragment : BaseFragment<FragmentTvShowEpisodeDetailBind
                         }
                 }
 
-                launch {
-                    binding.refresh.setOnRefreshListener {
-                        viewModel.refresh()
-                    }
-                }
+//                launch {
+//                    binding.refresh.setOnRefreshListener {
+//                        viewModel.refresh()
+//                    }
+//                }
             }
         }
     }

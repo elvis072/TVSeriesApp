@@ -5,6 +5,6 @@
     <dimen name="tv_show_title_size">20sp</dimen>
     <dimen name="view_holder_padding">5dp</dimen>
 
-    <dimen name="circular_placeholder_stroke_width">2dp</dimen>
-    <dimen name="circular_placeholder_radius">10dp</dimen>
+    <dimen name="circular_placeholder_stroke_width">5dp</dimen>
+    <dimen name="circular_placeholder_radius">20dp</dimen>
 </resources>

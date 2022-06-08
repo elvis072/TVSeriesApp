@@ -1,7 +1,5 @@
 package com.example.tvseriesapp.ui.fragment
 
-import android.os.Bundle
-import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
@@ -28,16 +26,14 @@ import kotlinx.coroutines.launch
 class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTvShowDetailBinding::inflate) {
     val viewModel by viewModels<TvShowDetailViewModel>()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.refresh.setOnRefreshListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.refresh()
-                }
-            }
-        }
+    override fun setUp() {
+//        binding.refresh.setOnRefreshListener {
+//            viewLifecycleOwner.lifecycleScope.launch {
+//                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                    viewModel.refresh()
+//                }
+//            }
+//        }
 
         setShowDetailData()
         setShowEpisodesData()
@@ -47,7 +43,7 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.showDetailState.collectLatest { state ->
-                    binding.refresh.isRefreshing = false
+//                    binding.refresh.isRefreshing = false
                     binding.progressCircular.isVisible = state.isLoading
 
                     state.showDetail?.image?.let {
