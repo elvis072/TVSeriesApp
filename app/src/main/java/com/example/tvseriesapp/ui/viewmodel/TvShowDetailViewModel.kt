@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TvShowDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getTvTvShowDetailUseCase: GetTvShowDetailUseCase,
+    private val getTvShowDetailUseCase: GetTvShowDetailUseCase,
     private val getTvShowEpisodesUseCase: GetTvShowEpisodesUseCase
     ) : ViewModel() {
 
@@ -37,25 +37,19 @@ class TvShowDetailViewModel @Inject constructor(
     }
 
     private fun getShow(id: Int) {
-        getTvTvShowDetailUseCase(id).onEach { result ->
+        getTvShowDetailUseCase(id).onEach { result ->
             when(result) {
                 is Result.Loading -> _showDetailState.value = TvShowDetailState(isLoading = true)
-                is Result.Success -> _showDetailState.value = TvShowDetailState(
-                    isLoading = false,
-                    showDetail = result.data
-                )
-                is Result.Error -> _showDetailState.value = TvShowDetailState(isLoading = false)
+                is Result.Success -> _showDetailState.value = TvShowDetailState(showDetail = result.data)
+                is Result.Error -> _showDetailState.value = TvShowDetailState()
             }
         }.launchIn(viewModelScope)
 
         getTvShowEpisodesUseCase(id).onEach { result ->
             when(result) {
                 is Result.Loading -> _showEpisodesState.value = TvShowEpisodesState(isLoading = true)
-                is Result.Success -> _showEpisodesState.value = TvShowEpisodesState(
-                    isLoading = false,
-                    episodes = result.data ?: emptyList()
-                )
-                is Result.Error -> _showEpisodesState.value = TvShowEpisodesState(isLoading = false)
+                is Result.Success -> _showEpisodesState.value = TvShowEpisodesState(episodes = result.data ?: emptyList())
+                is Result.Error -> _showEpisodesState.value = TvShowEpisodesState()
             }
         }.launchIn(viewModelScope)
     }

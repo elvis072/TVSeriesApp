@@ -27,14 +27,6 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
     val viewModel by viewModels<TvShowDetailViewModel>()
 
     override fun setUp() {
-//        binding.refresh.setOnRefreshListener {
-//            viewLifecycleOwner.lifecycleScope.launch {
-//                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-//                    viewModel.refresh()
-//                }
-//            }
-//        }
-
         setShowDetailData()
         setShowEpisodesData()
     }
@@ -42,58 +34,42 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
     private fun setShowDetailData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.showDetailState.collectLatest { state ->
-//                    binding.refresh.isRefreshing = false
-                    binding.progressCircular.isVisible = state.isLoading
+                launch {
+                    viewModel.showDetailState.collectLatest { state ->
+                        binding.progressCircular.isVisible = state.isLoading
+                        onCompleteRefresh()
 
-                    state.showDetail?.image?.let {
-                        binding.poster.load(it) {
-                            crossfade(true)
-                            context?.let {  ctx ->
-                                placeholder(ViewUtil.cretePlaceholder(ctx))
+                        state.showDetail?.let {
+                            binding.poster.load(it.image) {
+                                crossfade(true)
+                                context?.let { ctx ->
+                                    placeholder(ViewUtil.cretePlaceholder(ctx))
+                                }
                             }
+
+                            binding.title.text = it.name
+                            binding.rating.text = getString(R.string.tv_show_rating, it.rating)
+                            binding.language.text = it.language
+                            binding.runtime.text = getString(R.string.tv_show_runtime, it.runtime)
+                            binding.genres.text = it.genres.joinToString(" ")
+
+                            binding.days.text = HtmlCompat.fromHtml(
+                                getString(R.string.tv_show_days, it.days.joinToString()),
+                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                            )
+
+                            binding.time.text = HtmlCompat.fromHtml(
+                                getString(R.string.tv_show_time, it.time),
+                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                            )
+
+                            binding.summary.text =
+                                HtmlCompat.fromHtml(it.summary, HtmlCompat.FROM_HTML_MODE_LEGACY)
                         }
                     }
-
-                    state.showDetail?.name?.let {
-                        binding.title.text = it
-                    }
-
-                    state.showDetail?.rating?.let {
-                        binding.rating.text = getString(R.string.tv_show_rating, it)
-                    }
-
-                    state.showDetail?.language?.let {
-                        binding.language.text = it
-                    }
-
-                    state.showDetail?.runtime?.let {
-                        binding.runtime.text = getString(R.string.tv_show_runtime, it)
-                    }
-
-                    state.showDetail?.genres?.let {
-                        binding.genres.text = it.joinToString("  ")
-                    }
-
-                    state.showDetail?.days?.joinToString()?.let {
-                        binding.days.text = HtmlCompat.fromHtml(
-                            getString(R.string.tv_show_days, it),
-                            HtmlCompat.FROM_HTML_MODE_LEGACY
-                        )
-                    }
-
-                    state.showDetail?.time?.let {
-                        binding.time.text = HtmlCompat.fromHtml(
-                            getString(R.string.tv_show_time, it),
-                            HtmlCompat.FROM_HTML_MODE_LEGACY
-                        )
-                    }
-
-                    state.showDetail?.summary?.let {
-                        binding.summary.text =
-                            HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                    }
                 }
+
+                launch { onRefresh() }
             }
         }
     }
@@ -132,5 +108,9 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
                     episodesAdapter.submitList(state.episodes)
                 }
         }
+    }
+
+    override fun onRefresh() {
+        viewModel.refresh()
     }
 }

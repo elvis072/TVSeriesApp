@@ -8,10 +8,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,34 +45,17 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.getShows("")
-                        .collectLatest {
-                            tvShowsAdapter.submitData(it)
-                        }
-                }
-
-                launch {
-                    tvShowsAdapter.loadStateFlow.collectLatest { state ->
-//                        binding.refresh.isRefreshing = false
-                        binding.progressCircular.isVisible = state.refresh is LoadState.Loading
-                    }
-                }
-
-                launch {
-//                    binding.refresh.setOnRefreshListener {
-//                        viewLifecycleOwner.lifecycleScope.launch {
-//                            viewModel.getShows("")
-//                                .collectLatest {
-//                                    adapter.submitData(it)
-//                                }
-//                        }
-//                    }
-                }
+        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
+            onRefresh()
+            tvShowsAdapter.loadStateFlow.collectLatest { state ->
+                binding.progressCircular.isVisible = state.refresh is LoadState.Loading
+                onCompleteRefresh()
             }
         }
+    }
+
+    override fun onRefresh() {
+        getShows("")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -95,18 +76,21 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
             }
 
             override fun onQueryTextChange(query: String): Boolean {
-                if (isDetached || !isVisible)
-                    return false
+                if (isDetached || !isVisible) return false
 
-                viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.getShows(query)
-                        .flowWithLifecycle(lifecycle)
-                        .collectLatest {
-                            tvShowsAdapter.submitData(it)
-                        }
-                }
+                getShows(query)
                 return true
             }
         })
+    }
+
+    private fun getShows(query: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getShows(query)
+                .flowWithLifecycle(lifecycle)
+                .collectLatest {
+                    tvShowsAdapter.submitData(it)
+                }
+        }
     }
 }

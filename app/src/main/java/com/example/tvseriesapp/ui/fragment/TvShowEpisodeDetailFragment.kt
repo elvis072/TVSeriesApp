@@ -23,53 +23,35 @@ class TvShowEpisodeDetailFragment : BaseFragment<FragmentTvShowEpisodeDetailBind
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.state
-                        .collectLatest { state ->
-//                            binding.refresh.isRefreshing = false
-                            binding.progressCircular.isVisible = state.isLoading
+                    viewModel.state.collectLatest { state ->
+                        binding.progressCircular.isVisible = state.isLoading
+                        onCompleteRefresh()
 
-                            state.episode?.image?.let {
-                                binding.poster.load(it) {
-                                    crossfade(true)
-                                    context?.let {  ctx ->
-                                        placeholder(ViewUtil.cretePlaceholder(ctx))
-                                    }
+                        state.episode?.let {
+                            binding.poster.load(it.image) {
+                                crossfade(true)
+                                context?.let { ctx ->
+                                    placeholder(ViewUtil.cretePlaceholder(ctx))
                                 }
                             }
 
-                            state.episode?.name?.let {
-                                binding.title.text = it
-                            }
-
-                            state.episode?.number?.let {
-                                binding.number.text = getString(R.string.tv_show_episode, it)
-                            }
-
-                            state.episode?.season?.let {
-                                binding.season.text = getString(R.string.tv_show_season, it)
-                            }
-
-                            state.episode?.rating?.let {
-                                binding.rating.text = getString(R.string.tv_show_rating, it)
-                            }
-
-                            state.episode?.runtime?.let {
-                                binding.runtime.text = getString(R.string.tv_show_runtime, it)
-                            }
-
-                            state.episode?.summary?.let {
-                                binding.summary.text =
-                                    HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_LEGACY)
-                            }
+                            binding.title.text = it.name
+                            binding.number.text = getString(R.string.tv_show_episode, it.number)
+                            binding.season.text = getString(R.string.tv_show_season, it.season)
+                            binding.rating.text = getString(R.string.tv_show_rating, it.rating)
+                            binding.runtime.text = getString(R.string.tv_show_runtime, it.runtime)
+                            binding.summary.text =
+                                HtmlCompat.fromHtml(it.summary, HtmlCompat.FROM_HTML_MODE_LEGACY)
                         }
+                    }
                 }
 
-//                launch {
-//                    binding.refresh.setOnRefreshListener {
-//                        viewModel.refresh()
-//                    }
-//                }
+                launch { onRefresh() }
             }
         }
+    }
+
+    override fun onRefresh() {
+        viewModel.refresh()
     }
 }
