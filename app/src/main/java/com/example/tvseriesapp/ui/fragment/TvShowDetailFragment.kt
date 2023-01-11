@@ -18,6 +18,7 @@ import com.example.tvseriesapp.databinding.FragmentTvShowDetailBinding
 import com.example.tvseriesapp.ui.adapter.TvShowEpisodesAdapter
 import com.example.tvseriesapp.ui.adapter.itemdecoration.HeaderItemDecoration
 import com.example.tvseriesapp.ui.viewmodel.TvShowDetailViewModel
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -43,7 +44,7 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
                             binding.poster.load(it.image) {
                                 crossfade(true)
                                 context?.let { ctx ->
-                                    placeholder(ViewUtil.cretePlaceholder(ctx))
+                                    placeholder(ViewUtil.createPlaceholder(ctx))
                                 }
                             }
 
@@ -51,7 +52,19 @@ class TvShowDetailFragment: BaseFragment<FragmentTvShowDetailBinding>(FragmentTv
                             binding.rating.text = getString(R.string.tv_show_rating, it.rating)
                             binding.language.text = it.language
                             binding.runtime.text = getString(R.string.tv_show_runtime, it.runtime)
-                            binding.genres.text = it.genres.joinToString(" ")
+
+                            binding.genres.removeAllViews()
+                            context?.let { ctx ->
+                                it.genres.forEach { genre ->
+                                    val chip = Chip(ctx).apply {
+                                        text = genre
+                                        isCheckable = false
+                                        isClickable = false
+                                        setEnsureMinTouchTargetSize(false)
+                                    }
+                                    binding.genres.addView(chip)
+                                }
+                            }
 
                             binding.days.text = HtmlCompat.fromHtml(
                                 getString(R.string.tv_show_days, it.days.joinToString()),

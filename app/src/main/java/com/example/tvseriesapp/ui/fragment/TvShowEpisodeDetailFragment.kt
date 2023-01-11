@@ -31,7 +31,7 @@ class TvShowEpisodeDetailFragment : BaseFragment<FragmentTvShowEpisodeDetailBind
                             binding.poster.load(it.image) {
                                 crossfade(true)
                                 context?.let { ctx ->
-                                    placeholder(ViewUtil.cretePlaceholder(ctx))
+                                    placeholder(ViewUtil.createPlaceholder(ctx))
                                 }
                             }
 

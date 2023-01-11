@@ -24,7 +24,7 @@ class TvShowViewHolder(parent: ViewGroup, itemClickListener:(id: Int) -> Unit) :
         binding.title.text = model?.name
         binding.poster.load(model?.image) {
             crossfade(true)
-            placeholder(ViewUtil.cretePlaceholder(binding.root.context))
+            placeholder(ViewUtil.createPlaceholder(binding.root.context))
         }
         binding.rating.text = binding.root.context.getString(R.string.tv_show_rating, model?.rating)
         binding.premiered.text = model?.premiered?.split('-')?.first()

@@ -20,7 +20,7 @@ object ViewUtil {
         .apply { theme.resolveAttribute(attribute, this, true) }
         .data
 
-    fun cretePlaceholder(context: Context) = CircularProgressDrawable(context).apply {
+    fun createPlaceholder(context: Context) = CircularProgressDrawable(context).apply {
         strokeWidth = context.resources.getDimension(R.dimen.circular_placeholder_stroke_width)
         centerRadius = context.resources.getDimension(R.dimen.circular_placeholder_radius)
         setColorSchemeColors(context.getAttribute(com.google.android.material.R.attr.colorPrimary))
