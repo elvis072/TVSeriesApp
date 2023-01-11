@@ -4,9 +4,9 @@ import com.example.tvseriesapp.common.Constants
 import com.example.tvseriesapp.data.remote.service.TvShowService
 import com.example.tvseriesapp.data.repository.TvShowRepositoryImpl
 import com.example.tvseriesapp.domain.repository.TvShowRepository
-import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodeDetailUserCase
+import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodeDetailUseCase
 import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodesUseCase
-import com.example.tvseriesapp.domain.usecase.GetTvShowsUserCase
+import com.example.tvseriesapp.domain.usecase.GetTvShowsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,8 +36,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetShowsUseCase(tvShowRepository: TvShowRepository) : GetTvShowsUserCase {
-        return GetTvShowsUserCase(tvShowRepository)
+    fun provideGetShowsUseCase(tvShowRepository: TvShowRepository) : GetTvShowsUseCase {
+        return GetTvShowsUseCase(tvShowRepository)
     }
 
     @Provides
@@ -48,7 +48,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetTvShowEpisodeDetailUserCase(tvShowRepository: TvShowRepository) : GetTvShowEpisodeDetailUserCase {
-        return GetTvShowEpisodeDetailUserCase(tvShowRepository)
+    fun provideGetTvShowEpisodeDetailUserCase(tvShowRepository: TvShowRepository) : GetTvShowEpisodeDetailUseCase {
+        return GetTvShowEpisodeDetailUseCase(tvShowRepository)
     }
 }

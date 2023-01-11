@@ -22,7 +22,7 @@ class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShow
         return Pager(
             config = PagingConfig(
                 pageSize = Constants.NETWORK_PAGE_SIZE,
-                enablePlaceholders = false
+                enablePlaceholders = true
             ),
             pagingSourceFactory = { TvShowPagingSource(tvShowService, query) }
         ).flow.map { pagingData ->

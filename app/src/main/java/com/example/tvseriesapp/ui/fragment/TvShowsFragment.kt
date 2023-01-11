@@ -33,9 +33,14 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val menuHost: MenuHost = requireActivity()
+        menuHost.removeMenuProvider(this)
     }
 
     override fun setUp() {
@@ -52,7 +57,7 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            onRefresh()
+            getShows()
             tvShowsAdapter.loadStateFlow.collectLatest { state ->
                 binding.progressCircular.isVisible = state.refresh is LoadState.Loading
                 onCompleteRefresh()
@@ -61,7 +66,7 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
     }
 
     override fun onRefresh() {
-        getShows("")
+        tvShowsAdapter.refresh()
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -86,14 +91,13 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
 
             override fun onQueryTextChange(query: String): Boolean {
                 if (isDetached || !isVisible) return false
-
                 getShows(query)
                 return true
             }
         })
     }
 
-    private fun getShows(query: String) {
+    private fun getShows(query: String = "") {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getShows(query)
                 .flowWithLifecycle(lifecycle)

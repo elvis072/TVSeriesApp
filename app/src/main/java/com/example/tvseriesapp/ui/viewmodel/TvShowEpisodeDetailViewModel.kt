@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.tvseriesapp.common.Constants
 import com.example.tvseriesapp.common.Result
 import com.example.tvseriesapp.domain.model.Episode
-import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodeDetailUserCase
+import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodeDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TvShowEpisodeDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getTvShowEpisodeDetailUserCase: GetTvShowEpisodeDetailUserCase
+    private val getTvShowEpisodeDetailUseCase: GetTvShowEpisodeDetailUseCase
     ) : ViewModel() {
 
     private val _state = MutableStateFlow(TvShowEpisodeState())
@@ -30,7 +30,7 @@ class TvShowEpisodeDetailViewModel @Inject constructor(
     }
 
     private fun getEpisode(showId: Int, season: Int, number: Int) {
-        getTvShowEpisodeDetailUserCase(showId, season, number).onEach { result ->
+        getTvShowEpisodeDetailUseCase(showId, season, number).onEach { result ->
             when(result) {
                 is Result.Loading -> _state.value = TvShowEpisodeState(isLoading = true)
                 is Result.Success -> _state.value = TvShowEpisodeState(

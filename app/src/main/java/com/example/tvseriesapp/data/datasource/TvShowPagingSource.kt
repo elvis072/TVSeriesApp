@@ -16,12 +16,18 @@ class TvShowPagingSource @Inject constructor(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TvShowDto> {
         val position = params.key ?: Constants.STARTING_PAGE_INDEX
         return try {
-            val shows = if (query.isEmpty()) tvShowService.getShows(position)
-                        else tvShowService.searchShows(query).map { it.show }
+            val shows = if (query.isEmpty()) {
+                tvShowService.getShows(position)
+            } else {
+                tvShowService.searchShows(query).map { it.show }
+            }
+
+            val prevKey = if (position == Constants.STARTING_PAGE_INDEX) null else position.minus(1)
             val nextKey = if (shows.isEmpty() || query.isNotEmpty()) null else position.plus(1)
+
             LoadResult.Page(
                 data = shows,
-                prevKey = if (position == Constants.STARTING_PAGE_INDEX) null else - 1,
+                prevKey = prevKey,
                 nextKey = nextKey
             )
         } catch (e: IOException) {
