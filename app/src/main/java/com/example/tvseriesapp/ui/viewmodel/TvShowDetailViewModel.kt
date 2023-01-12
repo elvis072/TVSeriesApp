@@ -10,10 +10,9 @@ import com.example.tvseriesapp.domain.model.TvShowDetail
 import com.example.tvseriesapp.domain.usecase.GetTvShowDetailUseCase
 import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +20,8 @@ class TvShowDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getTvShowDetailUseCase: GetTvShowDetailUseCase,
     private val getTvShowEpisodesUseCase: GetTvShowEpisodesUseCase
-    ) : ViewModel() {
+) : ViewModel() {
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 
     private val _showDetailState = MutableStateFlow(TvShowDetailState())
     private val _showEpisodesState = MutableStateFlow(TvShowEpisodesState())
@@ -37,21 +37,29 @@ class TvShowDetailViewModel @Inject constructor(
     }
 
     private fun getShow(id: Int) {
-        getTvShowDetailUseCase(id).onEach { result ->
-            when(result) {
-                is Result.Loading -> _showDetailState.value = TvShowDetailState(isLoading = true)
-                is Result.Success -> _showDetailState.value = TvShowDetailState(showDetail = result.data)
-                is Result.Error -> _showDetailState.value = TvShowDetailState()
-            }
-        }.launchIn(viewModelScope)
+        getTvShowDetailUseCase(id)
+            .flowOn(dispatcher)
+            .onEach { result ->
+                when (result) {
+                    is Result.Loading -> _showDetailState.value =
+                        TvShowDetailState(isLoading = true)
+                    is Result.Success -> _showDetailState.value =
+                        TvShowDetailState(showDetail = result.data)
+                    is Result.Error -> _showDetailState.value = TvShowDetailState()
+                }
+            }.launchIn(viewModelScope)
 
-        getTvShowEpisodesUseCase(id).onEach { result ->
-            when(result) {
-                is Result.Loading -> _showEpisodesState.value = TvShowEpisodesState(isLoading = true)
-                is Result.Success -> _showEpisodesState.value = TvShowEpisodesState(episodes = result.data ?: emptyList())
-                is Result.Error -> _showEpisodesState.value = TvShowEpisodesState()
-            }
-        }.launchIn(viewModelScope)
+        getTvShowEpisodesUseCase(id)
+            .flowOn(dispatcher)
+            .onEach { result ->
+                when (result) {
+                    is Result.Loading -> _showEpisodesState.value =
+                        TvShowEpisodesState(isLoading = true)
+                    is Result.Success -> _showEpisodesState.value =
+                        TvShowEpisodesState(episodes = result.data ?: emptyList())
+                    is Result.Error -> _showEpisodesState.value = TvShowEpisodesState()
+                }
+            }.launchIn(viewModelScope)
     }
 
     fun refresh() {

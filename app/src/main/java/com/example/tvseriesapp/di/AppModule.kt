@@ -6,7 +6,6 @@ import com.example.tvseriesapp.data.repository.TvShowRepositoryImpl
 import com.example.tvseriesapp.domain.repository.TvShowRepository
 import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodeDetailUseCase
 import com.example.tvseriesapp.domain.usecase.GetTvShowEpisodesUseCase
-import com.example.tvseriesapp.domain.usecase.GetTvShowsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,12 +31,6 @@ object AppModule {
     @Singleton
     fun provideTvShowRepository(tvShowService: TvShowService) : TvShowRepository {
         return TvShowRepositoryImpl(tvShowService)
-    }
-
-    @Provides
-    @Singleton
-    fun provideGetShowsUseCase(tvShowRepository: TvShowRepository) : GetTvShowsUseCase {
-        return GetTvShowsUseCase(tvShowRepository)
     }
 
     @Provides

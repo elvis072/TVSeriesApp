@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    ext.hilt_version = '2.44'
+    ext.hilt_version = '2.44.2'
     dependencies {
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
     }
@@ -26,11 +26,13 @@ ext {
     paging_version = '3.1.1'
     retrofit_version = '2.9.0'
     okhttp_logging_interceptor_version = '5.0.0-alpha.2'
-    coroutines_version = '1.5.2'
+    coroutines_version = '1.6.4'
     coil_version = '2.2.2'
     nav_version = '2.5.3'
     junit_version = '4.13.2'
-    mockito_version = '3.12.4'
+    mockito_version = '4.11.0'
+    turbine_version = '0.12.1'
+    arch_core_testing_version= '2.1.0'
     android_junit_version = '1.1.5'
     espresso_version = '3.5.1'
 }

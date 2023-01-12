@@ -21,5 +21,5 @@ interface TvShowService {
     suspend fun getShowEpisodes(@Path("showId") showId: Int): List<EpisodeDto>
 
     @GET("shows/{showId}/episodebynumber")
-    suspend fun getShowEpisodes(@Path("showId") showId: Int, @Query("season") season: Int, @Query("number") number: Int): EpisodeDto
+    suspend fun getShowEpisode(@Path("showId") showId: Int, @Query("season") season: Int, @Query("number") number: Int): EpisodeDto
 }

@@ -1,42 +1,33 @@
 package com.example.tvseriesapp.data.repository
 
-import androidx.paging.*
 import com.example.tvseriesapp.common.Constants
-import com.example.tvseriesapp.data.datasource.TvShowPagingSource
+import com.example.tvseriesapp.common.Result
 import com.example.tvseriesapp.data.remote.service.TvShowService
+import com.example.tvseriesapp.domain.model.Episode
 import com.example.tvseriesapp.domain.model.TvShow
 import com.example.tvseriesapp.domain.model.TvShowDetail
 import com.example.tvseriesapp.domain.repository.TvShowRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
-import com.example.tvseriesapp.common.Result
-import com.example.tvseriesapp.domain.model.Episode
 
 class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShowService)
     : TvShowRepository {
-    override fun getShows(query: String): Flow<PagingData<TvShow>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = Constants.NETWORK_PAGE_SIZE,
-                enablePlaceholders = true
-            ),
-            pagingSourceFactory = { TvShowPagingSource(tvShowService, query) }
-        ).flow.map { pagingData ->
-            pagingData.map {
-                TvShow(
-                    id = it.id,
-                    name = it.name ?: "",
-                    premiered = it.premiered ?: "",
-                    image = it.image?.medium ?: "",
-                    language = it.language ?: "",
-                    rating = it.rating?.average ?: 0f,
-                    runtime = it.runtime
-                )
-            }
+    override suspend fun getShows(query: String, page: Int): List<TvShow> {
+        return if (query.isEmpty()) {
+            tvShowService.getShows(page)
+        } else {
+            tvShowService.searchShows(query).map { it.show }
+        }.map {
+            TvShow(
+                id = it.id,
+                name = it.name ?: "",
+                premiered = it.premiered ?: "",
+                image = it.image?.medium ?: "",
+                language = it.language ?: "",
+                rating = it.rating?.average ?: 0f,
+                runtime = it.runtime
+            )
         }
     }
 
@@ -56,10 +47,7 @@ class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShow
                 rating = show.rating?.average ?: 0f,
                 runtime = show.runtime
             )))
-        }
-        catch (e: IOException) {
-            emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
-        } catch (e: HttpException) {
+        } catch (e: Exception) {
             emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
         }
     }
@@ -83,9 +71,7 @@ class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShow
                 }
             ))
         }
-        catch (e: IOException) {
-            emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
-        } catch (e: HttpException) {
+        catch (e: Exception) {
             emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
         }
     }
@@ -93,7 +79,7 @@ class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShow
     override fun getEpisode(showId: Int, season: Int, number: Int): Flow<Result<Episode>> = flow {
         try {
             emit(Result.Loading())
-            val episode = tvShowService.getShowEpisodes(showId, season, number)
+            val episode = tvShowService.getShowEpisode(showId, season, number)
             emit(Result.Success(
                 Episode(
                     id = episode.id,
@@ -107,9 +93,7 @@ class TvShowRepositoryImpl @Inject constructor(private val tvShowService: TvShow
                 )
             ))
         }
-        catch (e: IOException) {
-            emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
-        } catch (e: HttpException) {
+        catch (e: Exception) {
             emit(Result.Error(e.message ?: Constants.GENERIC_ERROR))
         }
     }

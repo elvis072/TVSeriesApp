@@ -57,10 +57,20 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            getShows()
-            tvShowsAdapter.loadStateFlow.collectLatest { state ->
-                binding.progressCircular.isVisible = state.refresh is LoadState.Loading
-                onCompleteRefresh()
+            launch {
+                tvShowsAdapter.loadStateFlow
+                    .flowWithLifecycle(lifecycle)
+                    .collectLatest { state ->
+                        binding.progressCircular.isVisible = state.refresh is LoadState.Loading
+                        onCompleteRefresh()
+                    }
+            }
+            launch {
+                viewModel.tvShows
+                    .flowWithLifecycle(lifecycle)
+                    .collectLatest {
+                        tvShowsAdapter.submitData(it)
+                    }
             }
         }
     }
@@ -91,19 +101,9 @@ class TvShowsFragment : BaseFragment<FragmentTvShowsBinding>(FragmentTvShowsBind
 
             override fun onQueryTextChange(query: String): Boolean {
                 if (isDetached || !isVisible) return false
-                getShows(query)
+                viewModel.getShows(query)
                 return true
             }
         })
-    }
-
-    private fun getShows(query: String = "") {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getShows(query)
-                .flowWithLifecycle(lifecycle)
-                .collectLatest {
-                    tvShowsAdapter.submitData(it)
-                }
-        }
     }
 }
